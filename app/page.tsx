@@ -89,8 +89,9 @@ export default function Home() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="p-4">
             {/* Ant Table with same columns/behavior as the previous HTML table */}
-            <Table
-              columns={[
+            {/** Define columns separately to avoid TS overload issues in some setups */}
+            {(() => {
+              const columns: any[] = [
                 {
                   title: "Invoice #",
                   dataIndex: "invoiceNumber",
@@ -129,24 +130,30 @@ export default function Home() {
                     </Link>
                   ),
                 },
-              ]}
-              dataSource={data}
-              rowKey={(record) => record._id}
-              pagination={false}
-              loading={loading}
-              locale={{
-                emptyText: (
-                  <div className="px-6 py-12 text-center text-slate-500">
-                    <p className="text-lg font-medium mb-1">
-                      No invoices found
-                    </p>
-                    <p className="text-sm">
-                      Create your first invoice to get started
-                    </p>
-                  </div>
-                ),
-              }}
-            />
+              ];
+
+              return (
+                <Table
+                  columns={columns}
+                  dataSource={data}
+                  rowKey="_id"
+                  pagination={false}
+                  loading={loading}
+                  locale={{
+                    emptyText: (
+                      <div className="px-6 py-12 text-center text-slate-500">
+                        <p className="text-lg font-medium mb-1">
+                          No invoices found
+                        </p>
+                        <p className="text-sm">
+                          Create your first invoice to get started
+                        </p>
+                      </div>
+                    ),
+                  }}
+                />
+              );
+            })()}
           </div>
 
           <div className="px-6 py-4 border-t bg-slate-50 flex items-center justify-between">
