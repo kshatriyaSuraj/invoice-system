@@ -23,30 +23,44 @@ export async function POST(req: Request) {
     }
 
     let puppeteer;
-    let chromium;
-    let launchOptions: any = { headless: true };
+    let launchOptions: any;
 
-    try {
-      const chromeModule = await Function(
-        'return import("chrome-aws-lambda")'
-      )();
-      chromium = chromeModule.default || chromeModule;
+    const isVercel = process.env.VERCEL === "1";
 
-      const puppeteerCoreModule = await Function(
-        'return import("puppeteer-core")'
-      )();
-      puppeteer = puppeteerCoreModule.default || puppeteerCoreModule;
+    if (isVercel) {
+      try {
+        // On Vercel, chrome-aws-lambda provides the Chrome executable
+        const getChromium = () => {
+          try {
+            // eslint-disable-next-line global-require
+            return require("chrome-aws-lambda");
+          } catch {
+            return null;
+          }
+        };
 
-      const executablePath = await chromium.executablePath;
-      launchOptions = {
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: executablePath || undefined,
-        headless: chromium.headless,
-      };
-    } catch (importError) {
+        const chromium = getChromium();
+        if (chromium) {
+          // eslint-disable-next-line global-require
+          puppeteer = require("puppeteer-core");
+
+          const executablePath = await chromium.executablePath;
+          launchOptions = {
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath,
+            headless: chromium.headless,
+          };
+        } else {
+          throw new Error("chrome-aws-lambda not found");
+        }
+      } catch {
+        puppeteer = await import("puppeteer").then((m) => m.default || m);
+        launchOptions = { headless: true };
+      }
+    } else {
       puppeteer = await import("puppeteer").then((m) => m.default || m);
-      chromium = null;
+      launchOptions = { headless: true };
     }
 
     browser = await puppeteer.launch(launchOptions);
