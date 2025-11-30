@@ -64,7 +64,6 @@ export default function Home() {
                 placeholder="Search by invoice # or client"
                 className="border rounded-md px-3 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
-              {/* Search is performed as the user types (debounced) */}
               <button
                 type="button"
                 onClick={() => {
@@ -88,8 +87,6 @@ export default function Home() {
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="p-4">
-            {/* Ant Table with same columns/behavior as the previous HTML table */}
-            {/** Define columns separately to avoid TS overload issues in some setups */}
             {(() => {
               const columns: any[] = [
                 {

@@ -22,23 +22,21 @@ export async function POST(req: Request) {
       );
     }
 
-    // Try to use chrome-aws-lambda for Vercel, fall back to local puppeteer for dev
     let puppeteer;
     let chromium;
-    try {
-      // Try importing chrome-aws-lambda (available on Vercel)
-      chromium = require("chrome-aws-lambda");
-      puppeteer = require("puppeteer-core");
-    } catch {
-      // Fall back to standard puppeteer for local development
-      puppeteer = require("puppeteer");
-      chromium = null;
-    }
-
     let launchOptions: any = { headless: true };
 
-    if (chromium) {
-      // Vercel/serverless environment
+    try {
+      const chromeModule = await Function(
+        'return import("chrome-aws-lambda")'
+      )();
+      chromium = chromeModule.default || chromeModule;
+
+      const puppeteerCoreModule = await Function(
+        'return import("puppeteer-core")'
+      )();
+      puppeteer = puppeteerCoreModule.default || puppeteerCoreModule;
+
       const executablePath = await chromium.executablePath;
       launchOptions = {
         args: chromium.args,
@@ -46,6 +44,9 @@ export async function POST(req: Request) {
         executablePath: executablePath || undefined,
         headless: chromium.headless,
       };
+    } catch (importError) {
+      puppeteer = await import("puppeteer").then((m) => m.default || m);
+      chromium = null;
     }
 
     browser = await puppeteer.launch(launchOptions);

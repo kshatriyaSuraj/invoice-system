@@ -46,7 +46,6 @@ export default function CreateInvoicePage() {
     totalInWords: "",
   });
 
-  // Convert number to words
   const numberToWords = (num: number): string => {
     const ones = [
       "",

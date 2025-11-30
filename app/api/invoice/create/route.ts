@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Basic server-side validation
     const errors: string[] = [];
 
     if (
@@ -60,7 +59,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // grandTotal should be numeric
     if (body.grandTotal == null || !isFinite(Number(body.grandTotal))) {
       errors.push("grandTotal is required and must be a number");
     }

@@ -91,7 +91,6 @@ export default function PreviewClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-5xl mx-auto">
-        {/* Header with Back Button */}
         <div className="mb-6 flex justify-between items-center">
           <button
             onClick={() => router.push("/")}
@@ -112,11 +111,8 @@ export default function PreviewClient() {
           </div>
         </div>
 
-        {/* Invoice Container */}
         <div className="bg-white rounded-lg shadow-lg p-12 border-t-4 border-blue-600">
-          {/* Header Section */}
           <div className="grid grid-cols-3 gap-8 mb-8 pb-8 border-b-2 border-slate-200">
-            {/* Vendor Info */}
             <div>
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
                 From
@@ -132,7 +128,6 @@ export default function PreviewClient() {
               </p>
             </div>
 
-            {/* Invoice Title & Number */}
             <div className="text-center">
               <h1 className="text-4xl font-bold text-blue-600 mb-4">INVOICE</h1>
               <div className="bg-slate-100 p-4 rounded">
@@ -145,7 +140,6 @@ export default function PreviewClient() {
               </div>
             </div>
 
-            {/* Client Info */}
             <div>
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
                 Bill To
@@ -165,7 +159,6 @@ export default function PreviewClient() {
             </div>
           </div>
 
-          {/* Invoice Details */}
           <div className="grid grid-cols-4 gap-4 mb-8">
             <div className="bg-slate-50 p-4 rounded">
               <p className="text-xs text-slate-600 font-semibold uppercase mb-1">
