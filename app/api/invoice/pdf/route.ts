@@ -49,7 +49,65 @@ export async function POST(req: Request) {
       launchOptions = { headless: true };
     }
 
-    browser = await puppeteer.launch(launchOptions);
+    try {
+      browser = await puppeteer.launch(launchOptions);
+    } catch (launchError: any) {
+      console.error(
+        "Browser launch failed:",
+        launchError?.message ?? launchError
+      );
+
+      // Fallback: if a remote PDF service is configured, send HTML to it
+      const pdfServiceUrl = process.env.PDF_SERVICE_URL;
+      const pdfServiceToken = process.env.PDF_SERVICE_TOKEN;
+      if (pdfServiceUrl) {
+        try {
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+          };
+          if (pdfServiceToken)
+            headers["Authorization"] = `Bearer ${pdfServiceToken}`;
+
+          const svcRes = await fetch(pdfServiceUrl, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ html, invoiceNumber: data.invoiceNumber }),
+          });
+
+          if (!svcRes.ok) {
+            const text = await svcRes.text().catch(() => "");
+            console.error(
+              "PDF service responded with error:",
+              svcRes.status,
+              text
+            );
+            throw new Error("PDF service error");
+          }
+
+          const arrayBuffer = await svcRes.arrayBuffer();
+          const pdfBuffer = Buffer.from(arrayBuffer);
+
+          const invoiceNumber = data.invoiceNumber || "invoice";
+          return new NextResponse(pdfBuffer, {
+            status: 200,
+            headers: {
+              "Content-Type": "application/pdf",
+              "Content-Disposition": `attachment; filename=Invoice_${invoiceNumber}.pdf`,
+            },
+          });
+        } catch (svcError: any) {
+          console.error(
+            "PDF service fallback failed:",
+            svcError?.message ?? svcError
+          );
+          // fall through to outer catch which returns a 500
+        }
+      }
+
+      // If no fallback or fallback failed, rethrow to be handled below
+      throw launchError;
+    }
+
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
     const pdfBuffer = await page.pdf({
