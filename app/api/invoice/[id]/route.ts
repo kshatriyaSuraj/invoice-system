@@ -7,7 +7,6 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // ✅ IMPORTANT: params must be awaited
     const { id } = await context.params;
 
     console.log("Resolved ID:", id);

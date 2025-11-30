@@ -9,7 +9,6 @@ export async function POST(req: Request) {
     const html = renderInvoiceHTML(data);
     const pdfBuffer = await generatePDF(html); // Uint8Array
 
-    // ✅ Convert Uint8Array → Buffer → Blob
     const buffer = Buffer.from(pdfBuffer);
     const blob = new Blob([buffer], { type: "application/pdf" });
 
