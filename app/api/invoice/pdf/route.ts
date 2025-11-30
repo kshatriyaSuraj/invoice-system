@@ -29,31 +29,17 @@ export async function POST(req: Request) {
 
     if (isVercel) {
       try {
-        // On Vercel, chrome-aws-lambda provides the Chrome executable
-        const getChromium = () => {
-          try {
-            // eslint-disable-next-line global-require
-            return require("chrome-aws-lambda");
-          } catch {
-            return null;
-          }
+        // eslint-disable-next-line global-require
+        const chromium = require("@sparticuz/chromium");
+        // eslint-disable-next-line global-require
+        puppeteer = require("puppeteer-core");
+
+        launchOptions = {
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
         };
-
-        const chromium = getChromium();
-        if (chromium) {
-          // eslint-disable-next-line global-require
-          puppeteer = require("puppeteer-core");
-
-          const executablePath = await chromium.executablePath;
-          launchOptions = {
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath,
-            headless: chromium.headless,
-          };
-        } else {
-          throw new Error("chrome-aws-lambda not found");
-        }
       } catch {
         puppeteer = await import("puppeteer").then((m) => m.default || m);
         launchOptions = { headless: true };
